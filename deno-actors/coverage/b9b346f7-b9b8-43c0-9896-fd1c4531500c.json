@@ -1,0 +1,151 @@
+{
+  "scriptId": "335",
+  "url": "file:///home/noah/src/agentic-ai/deno-actors/simple.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [
+        {
+          "startOffset": 0,
+          "endOffset": 2041,
+          "count": 1
+        }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [
+        {
+          "startOffset": 79,
+          "endOffset": 107,
+          "count": 10
+        }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "send",
+      "ranges": [
+        {
+          "startOffset": 111,
+          "endOffset": 313,
+          "count": 30
+        },
+        {
+          "startOffset": 160,
+          "endOffset": 266,
+          "count": 25
+        },
+        {
+          "startOffset": 266,
+          "endOffset": 309,
+          "count": 5
+        }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "receive",
+      "ranges": [
+        {
+          "startOffset": 316,
+          "endOffset": 823,
+          "count": 30
+        },
+        {
+          "startOffset": 370,
+          "endOffset": 460,
+          "count": 5
+        },
+        {
+          "startOffset": 445,
+          "endOffset": 452,
+          "count": 0
+        },
+        {
+          "startOffset": 460,
+          "endOffset": 822,
+          "count": 25
+        }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        {
+          "startOffset": 484,
+          "endOffset": 817,
+          "count": 25
+        }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        {
+          "startOffset": 528,
+          "endOffset": 700,
+          "count": 0
+        }
+      ],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        {
+          "startOffset": 738,
+          "endOffset": 809,
+          "count": 25
+        }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "simplePingPong",
+      "ranges": [
+        {
+          "startOffset": 833,
+          "endOffset": 2040,
+          "count": 5
+        }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "pingActor",
+      "ranges": [
+        {
+          "startOffset": 994,
+          "endOffset": 1452,
+          "count": 5
+        },
+        {
+          "startOffset": 1049,
+          "endOffset": 1448,
+          "count": 15
+        }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "pongActor",
+      "ranges": [
+        {
+          "startOffset": 1490,
+          "endOffset": 1923,
+          "count": 5
+        },
+        {
+          "startOffset": 1545,
+          "endOffset": 1919,
+          "count": 15
+        }
+      ],
+      "isBlockCoverage": true
+    }
+  ]
+}

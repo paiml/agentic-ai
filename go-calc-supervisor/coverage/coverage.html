@@ -1,0 +1,477 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>go-calc-supervisor: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">go-calc-supervisor/calc.go (92.5%)</option>
+				
+				<option value="file1">go-calc-supervisor/main.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "fmt"
+        "math"
+        "sync"
+        "time"
+)
+
+type Request struct {
+        Op    string
+        A, B  int
+        Reply chan Response
+}
+
+type Response struct {
+        Result int
+        Error  error
+}
+
+type Adder struct {
+        inbox chan Request
+        alive bool
+        mu    sync.Mutex
+}
+
+func NewAdder() *Adder <span class="cov8" title="1">{
+        return &amp;Adder{
+                inbox: make(chan Request, 10),
+                alive: true,
+        }
+}</span>
+
+func (a *Adder) Run() <span class="cov8" title="1">{
+        for req := range a.inbox </span><span class="cov8" title="1">{
+                if (req.A &gt; 0 &amp;&amp; req.B &gt; math.MaxInt64-req.A) ||
+                        (req.A &lt; 0 &amp;&amp; req.B &lt; math.MinInt64-req.A) </span><span class="cov8" title="1">{
+                        select </span>{
+                        case req.Reply &lt;- Response{Error: fmt.Errorf("overflow")}:<span class="cov8" title="1"></span>
+                        case &lt;-time.After(10 * time.Millisecond):<span class="cov0" title="0"></span>
+                        }
+                        <span class="cov8" title="1">a.mu.Lock()
+                        a.alive = false
+                        a.mu.Unlock()
+                        return</span>
+                }
+
+                <span class="cov8" title="1">select </span>{
+                case req.Reply &lt;- Response{Result: req.A + req.B}:<span class="cov8" title="1"></span>
+                case &lt;-time.After(10 * time.Millisecond):<span class="cov0" title="0"></span>
+                }
+        }
+}
+
+type Multiplier struct {
+        inbox chan Request
+        alive bool
+        mu    sync.Mutex
+}
+
+func NewMultiplier() *Multiplier <span class="cov8" title="1">{
+        return &amp;Multiplier{
+                inbox: make(chan Request, 10),
+                alive: true,
+        }
+}</span>
+
+func (m *Multiplier) Run() <span class="cov8" title="1">{
+        for req := range m.inbox </span><span class="cov8" title="1">{
+                if m.wouldOverflow(req.A, req.B) </span><span class="cov8" title="1">{
+                        m.sendError(req.Reply)
+                        m.mu.Lock()
+                        m.alive = false
+                        m.mu.Unlock()
+                        return
+                }</span>
+
+                <span class="cov8" title="1">select </span>{
+                case req.Reply &lt;- Response{Result: req.A * req.B}:<span class="cov8" title="1"></span>
+                case &lt;-time.After(10 * time.Millisecond):<span class="cov0" title="0"></span>
+                }
+        }
+}
+
+func (m *Multiplier) wouldOverflow(a, b int) bool <span class="cov8" title="1">{
+        if a == 0 || b == 0 </span><span class="cov8" title="1">{
+                return false
+        }</span>
+        <span class="cov8" title="1">result := a * b
+        return result/a != b</span>
+}
+
+func (m *Multiplier) sendError(reply chan Response) <span class="cov8" title="1">{
+        select </span>{
+        case reply &lt;- Response{Error: fmt.Errorf("overflow")}:<span class="cov8" title="1"></span>
+        case &lt;-time.After(10 * time.Millisecond):<span class="cov0" title="0"></span>
+        }
+}
+
+type Calculator struct {
+        adder       *Adder
+        multiplier  *Multiplier
+        restarts    map[string]int
+        budget      int
+        resetTicker *time.Ticker
+        escalated   bool
+        mu          sync.RWMutex
+        done        chan struct{}
+        wg          sync.WaitGroup
+        stopped     bool
+}
+
+func NewCalculator() *Calculator <span class="cov8" title="1">{
+        return &amp;Calculator{
+                restarts:    map[string]int{"adder": 0, "multiplier": 0},
+                budget:      3,
+                resetTicker: time.NewTicker(time.Minute),
+                done:        make(chan struct{}),
+        }
+}</span>
+
+func (c *Calculator) Start() <span class="cov8" title="1">{
+        c.adder = NewAdder()
+        c.multiplier = NewMultiplier()
+
+        c.wg.Add(2)
+        go func() </span><span class="cov8" title="1">{
+                defer c.wg.Done()
+                c.adder.Run()
+        }</span>()
+        <span class="cov8" title="1">go func() </span><span class="cov8" title="1">{
+                defer c.wg.Done()
+                c.multiplier.Run()
+        }</span>()
+
+        <span class="cov8" title="1">go c.supervise()</span>
+}
+
+func (c *Calculator) supervise() <span class="cov8" title="1">{
+        for </span><span class="cov8" title="1">{
+                select </span>{
+                case &lt;-c.resetTicker.C:<span class="cov8" title="1">
+                        c.mu.Lock()
+                        c.budget = 3
+                        c.escalated = false
+                        c.mu.Unlock()</span>
+
+                case &lt;-c.done:<span class="cov8" title="1">
+                        return</span>
+                }
+        }
+}
+
+func (c *Calculator) Add(a, b int) (int, error) <span class="cov8" title="1">{
+        req := Request{
+                Op:    "add",
+                A:     a,
+                B:     b,
+                Reply: make(chan Response, 1),
+        }
+
+        select </span>{
+        case c.adder.inbox &lt;- req:<span class="cov8" title="1">
+                select </span>{
+                case resp := &lt;-req.Reply:<span class="cov8" title="1">
+                        if resp.Error != nil </span><span class="cov8" title="1">{
+                                c.restart("adder")
+                                return 0, resp.Error
+                        }</span>
+                        <span class="cov8" title="1">return resp.Result, nil</span>
+                case &lt;-time.After(100 * time.Millisecond):<span class="cov0" title="0">
+                        c.restart("adder")
+                        return 0, fmt.Errorf("timeout")</span>
+                }
+        case &lt;-time.After(10 * time.Millisecond):<span class="cov0" title="0">
+                c.restart("adder")
+                return 0, fmt.Errorf("agent busy")</span>
+        }
+}
+
+func (c *Calculator) Multiply(a, b int) (int, error) <span class="cov8" title="1">{
+        req := Request{
+                Op:    "mul",
+                A:     a,
+                B:     b,
+                Reply: make(chan Response, 1),
+        }
+
+        select </span>{
+        case c.multiplier.inbox &lt;- req:<span class="cov8" title="1">
+                select </span>{
+                case resp := &lt;-req.Reply:<span class="cov8" title="1">
+                        if resp.Error != nil </span><span class="cov8" title="1">{
+                                c.restart("multiplier")
+                                return 0, resp.Error
+                        }</span>
+                        <span class="cov8" title="1">return resp.Result, nil</span>
+                case &lt;-time.After(100 * time.Millisecond):<span class="cov0" title="0">
+                        c.restart("multiplier")
+                        return 0, fmt.Errorf("timeout")</span>
+                }
+        case &lt;-time.After(10 * time.Millisecond):<span class="cov0" title="0">
+                c.restart("multiplier")
+                return 0, fmt.Errorf("agent busy")</span>
+        }
+}
+
+func (c *Calculator) restart(agent string) <span class="cov8" title="1">{
+        c.mu.Lock()
+        defer c.mu.Unlock()
+
+        if c.budget &lt;= 0 </span><span class="cov8" title="1">{
+                c.escalated = true
+                return
+        }</span>
+
+        <span class="cov8" title="1">c.restarts[agent]++
+        c.budget--
+
+        switch agent </span>{
+        case "adder":<span class="cov8" title="1">
+                if c.adder != nil </span><span class="cov8" title="1">{
+                        close(c.adder.inbox)
+                }</span>
+                <span class="cov8" title="1">c.adder = NewAdder()
+                c.wg.Add(1)
+                go func() </span><span class="cov8" title="1">{
+                        defer c.wg.Done()
+                        c.adder.Run()
+                }</span>()
+        case "multiplier":<span class="cov8" title="1">
+                if c.multiplier != nil </span><span class="cov8" title="1">{
+                        close(c.multiplier.inbox)
+                }</span>
+                <span class="cov8" title="1">c.multiplier = NewMultiplier()
+                c.wg.Add(1)
+                go func() </span><span class="cov8" title="1">{
+                        defer c.wg.Done()
+                        c.multiplier.Run()
+                }</span>()
+        }
+}
+
+func (c *Calculator) RestartCount(agent string) int <span class="cov8" title="1">{
+        c.mu.RLock()
+        defer c.mu.RUnlock()
+        return c.restarts[agent]
+}</span>
+
+func (c *Calculator) IsEscalated() bool <span class="cov8" title="1">{
+        c.mu.RLock()
+        defer c.mu.RUnlock()
+        return c.escalated
+}</span>
+
+func (c *Calculator) Stop() <span class="cov8" title="1">{
+        c.mu.Lock()
+        defer c.mu.Unlock()
+
+        if c.stopped </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">c.stopped = true
+
+        c.stopSupervision()
+        c.closeAgentChannel(&amp;c.adder.inbox)
+        c.closeAgentChannel(&amp;c.multiplier.inbox)</span>
+}
+
+func (c *Calculator) stopSupervision() <span class="cov8" title="1">{
+        if c.done != nil </span><span class="cov8" title="1">{
+                close(c.done)
+        }</span>
+        <span class="cov8" title="1">if c.resetTicker != nil </span><span class="cov8" title="1">{
+                c.resetTicker.Stop()
+        }</span>
+}
+
+func (c *Calculator) closeAgentChannel(ch *chan Request) <span class="cov8" title="1">{
+        if ch != nil &amp;&amp; *ch != nil </span><span class="cov8" title="1">{
+                select </span>{
+                case &lt;-*ch:<span class="cov0" title="0"></span>
+                default:<span class="cov8" title="1">
+                        close(*ch)</span>
+                }
+                <span class="cov8" title="1">*ch = nil</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">//go:build !test
+// +build !test
+
+package main
+
+import (
+        "fmt"
+        "math"
+        "time"
+)
+
+func main() <span class="cov0" title="0">{
+        fmt.Println("🚀 Calculator Supervisor Demo")
+        fmt.Println("=============================")
+
+        calc := NewCalculator()
+        calc.Start()
+        defer calc.Stop()
+
+        // Demo 1: Basic operations
+        fmt.Println("\n📊 Demo 1: Basic Operations")
+        result, err := calc.Add(10, 20)
+        if err == nil </span><span class="cov0" title="0">{
+                fmt.Printf("   10 + 20 = %d\n", result)
+        }</span>
+
+        <span class="cov0" title="0">result, err = calc.Multiply(5, 6)
+        if err == nil </span><span class="cov0" title="0">{
+                fmt.Printf("   5 * 6 = %d\n", result)
+        }</span>
+
+        // Demo 2: Overflow detection and recovery
+        <span class="cov0" title="0">fmt.Println("\n⚠️  Demo 2: Overflow Detection &amp; Recovery")
+        fmt.Printf("   Attempting overflow: MaxInt64 + 1...\n")
+        _, err = calc.Add(math.MaxInt64, 1)
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Printf("   ❌ Error (expected): %v\n", err)
+                fmt.Printf("   🔄 Adder restarts: %d\n", calc.RestartCount("adder"))
+        }</span>
+
+        // Show recovery
+        <span class="cov0" title="0">fmt.Println("\n✅ Demo 3: Recovery After Crash")
+        result, err = calc.Add(100, 200)
+        if err == nil </span><span class="cov0" title="0">{
+                fmt.Printf("   100 + 200 = %d (agent recovered!)\n", result)
+        }</span>
+
+        // Demo 4: Multiple failures
+        <span class="cov0" title="0">fmt.Println("\n🔥 Demo 4: Multiple Failures")
+        for i := 1; i &lt;= 3; i++ </span><span class="cov0" title="0">{
+                fmt.Printf("   Crash attempt #%d...\n", i)
+                _, _ = calc.Multiply(math.MaxInt64, 2)
+                time.Sleep(50 * time.Millisecond)
+        }</span>
+        <span class="cov0" title="0">fmt.Printf("   🔄 Multiplier restarts: %d\n", calc.RestartCount("multiplier"))
+
+        if calc.IsEscalated() </span><span class="cov0" title="0">{
+                fmt.Println("   ⚡ Supervisor escalated (budget exhausted)")
+        }</span> else<span class="cov0" title="0"> {
+                fmt.Println("   ✨ Supervisor still healthy")
+        }</span>
+
+        // Demo 5: Performance test
+        <span class="cov0" title="0">fmt.Println("\n⚡ Demo 5: Performance Test")
+        start := time.Now()
+        operations := 1000
+        for i := 0; i &lt; operations; i++ </span><span class="cov0" title="0">{
+                _, _ = calc.Add(i, i+1)
+        }</span>
+        <span class="cov0" title="0">elapsed := time.Since(start)
+        avgLatency := elapsed / time.Duration(operations)
+
+        fmt.Printf("   Completed %d operations in %v\n", operations, elapsed)
+        fmt.Printf("   Average latency: %v\n", avgLatency)
+
+        // Final status
+        fmt.Println("\n📈 Final Statistics:")
+        fmt.Printf("   Adder restarts: %d\n", calc.RestartCount("adder"))
+        fmt.Printf("   Multiplier restarts: %d\n", calc.RestartCount("multiplier"))
+        fmt.Printf("   Supervisor escalated: %v\n", calc.IsEscalated())
+        fmt.Println("\n✨ Demo completed!")</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

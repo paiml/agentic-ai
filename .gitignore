@@ -1,0 +1,33 @@
+# Build artifacts
+bin/
+target/
+*.exe
+
+# Language-specific
+# Go
+go-actors/go.sum
+
+# Rust
+rust-actors/Cargo.lock
+
+# Deno
+deno-actors/deno.lock
+
+# Ruchy
+ruchy-actors/*.ruc
+ruchy-actors/target/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary
+*.tmp
+*.log
+deep_context.md

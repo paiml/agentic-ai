@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "fmt": {
+    "include": ["*.ts", "*.js"],
+    "options": {
+      "useTabs": false,
+      "lineWidth": 80,
+      "indentWidth": 2,
+      "semiColons": true,
+      "singleQuote": false,
+      "proseWrap": "preserve"
+    }
+  },
+  "lint": {
+    "include": ["*.ts", "*.js"],
+    "rules": {
+      "tags": ["recommended"],
+      "include": [
+        "ban-untagged-todo",
+        "no-non-null-assertion",
+        "explicit-function-return-type",
+        "no-inferrable-types"
+      ]
+    }
+  },
+  "test": {
+    "include": ["**/*test.ts", "**/*_test.ts"],
+    "exclude": ["coverage/"]
+  }
+}

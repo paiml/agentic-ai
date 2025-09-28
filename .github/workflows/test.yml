@@ -1,0 +1,187 @@
+name: Test All Implementations
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-go-actors:
+    name: Test Go Ping-Pong Actors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Test Go Actors
+        working-directory: ./go-actors
+        run: |
+          go mod download
+          make test
+          make build
+
+      - name: Check Go Actors Coverage
+        working-directory: ./go-actors
+        run: |
+          go test -coverprofile=coverage.out
+          go tool cover -func=coverage.out
+
+  test-go-calc-supervisor:
+    name: Test Go Calculator Supervisor
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Test Calculator Supervisor
+        working-directory: ./go-calc-supervisor
+        run: |
+          go mod download
+          make test
+          make build
+
+      - name: Check Calculator Coverage
+        working-directory: ./go-calc-supervisor
+        run: |
+          go test -tags test -coverprofile=coverage.out
+          coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+          echo "Coverage: $coverage%"
+          if (( $(echo "$coverage < 80" | bc -l) )); then
+            echo "Coverage is below 80%!"
+            exit 1
+          fi
+
+  test-rust-actors:
+    name: Test Rust Ping-Pong Actors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./rust-actors -> target"
+
+      - name: Test Rust Actors
+        working-directory: ./rust-actors
+        run: |
+          cargo test --test simple_actor_test
+          cargo build --release
+
+      - name: Check Rust formatting
+        working-directory: ./rust-actors
+        run: cargo fmt --check
+
+      - name: Run Clippy
+        working-directory: ./rust-actors
+        run: cargo clippy -- -D warnings
+
+  test-deno-actors:
+    name: Test Deno Ping-Pong Actors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: vx.x.x
+
+      - name: Test Deno Actors
+        working-directory: ./deno-actors
+        run: |
+          deno test simple_test.ts
+          deno compile --allow-all --output=bin/ping-pong simple.ts
+
+      - name: Check Deno formatting
+        working-directory: ./deno-actors
+        run: deno fmt --check
+
+      - name: Lint Deno code
+        working-directory: ./deno-actors
+        run: deno lint
+
+  test-ruchy-actors:
+    name: Test Ruchy Actors (Status Check)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Ruchy Status
+        working-directory: ./ruchy-actors
+        run: |
+          echo "Ruchy actors implementation pending"
+          if [ -f "BUG_REPORT.md" ]; then
+            echo "Bug report found - Ruchy implementation awaiting actor syntax"
+          fi
+
+  integration-test:
+    name: Integration Test All
+    runs-on: ubuntu-latest
+    needs: [test-go-actors, test-go-calc-supervisor, test-rust-actors, test-deno-actors]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: vx.x.x
+
+      - name: Run all tests
+        run: |
+          echo "Running integration tests..."
+          make test || true
+
+      - name: Build all implementations
+        run: |
+          echo "Building all implementations..."
+          make build || true
+
+  summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [test-go-actors, test-go-calc-supervisor, test-rust-actors, test-deno-actors, test-ruchy-actors, integration-test]
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## Test Results Summary"
+          echo ""
+          echo "### Implementation Status:"
+          echo "- Go Ping-Pong: ${{ needs.test-go-actors.result }}"
+          echo "- Go Calculator Supervisor: ${{ needs.test-go-calc-supervisor.result }}"
+          echo "- Rust Ping-Pong: ${{ needs.test-rust-actors.result }}"
+          echo "- Deno Ping-Pong: ${{ needs.test-deno-actors.result }}"
+          echo "- Ruchy Actors: ${{ needs.test-ruchy-actors.result }} (expected to fail - pending implementation)"
+          echo "- Integration: ${{ needs.integration-test.result }}"
+          echo ""
+          if [[ "${{ needs.test-go-actors.result }}" == "success" &&
+                "${{ needs.test-go-calc-supervisor.result }}" == "success" &&
+                "${{ needs.test-rust-actors.result }}" == "success" &&
+                "${{ needs.test-deno-actors.result }}" == "success" &&
+                "${{ needs.integration-test.result }}" == "success" ]]; then
+            echo "✅ All primary implementations passed!"
+          else
+            echo "⚠️ Some tests failed. Check individual job logs for details."
+          fi

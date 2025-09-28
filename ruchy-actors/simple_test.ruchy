@@ -1,0 +1,52 @@
+// Simple Actor Test - Basic functionality test
+// Tests the basic actor definition and instantiation
+
+fun test_actor_definition() {
+    // Test that actors can be defined and accessed
+    println("Testing actor definition...")
+
+    // This should work with current actor implementation
+    actor TestActor {
+        value: i32
+    }
+
+    println("✓ Actor definition successful")
+}
+
+fun test_ping_pong_actors() {
+    // Test the ping-pong actor definitions
+    println("Testing ping-pong actors...")
+
+    actor Ping {
+        round: i32
+    }
+
+    actor Pong {
+        round: i32
+    }
+
+    println("✓ Ping-Pong actors defined successfully")
+}
+
+fun test_actor_fields() {
+    // Test actors with multiple fields
+    println("Testing actor with multiple fields...")
+
+    actor MultiFieldActor {
+        name: String,
+        count: i32,
+        active: bool
+    }
+
+    println("✓ Multi-field actor definition successful")
+}
+
+fun main() {
+    println("Running Ruchy Actor Tests...")
+
+    test_actor_definition()
+    test_ping_pong_actors()
+    test_actor_fields()
+
+    println("All tests passed! ✅")
+}

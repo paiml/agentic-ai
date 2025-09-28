@@ -1,0 +1,14 @@
+mode: set
+actors/main.go:5.13,14.31 6 0
+actors/main.go:14.31,16.3 1 0
+actors/simple.go:15.76,22.12 5 1
+actors/simple.go:22.12,24.39 2 1
+actors/simple.go:24.39,35.11 7 1
+actors/simple.go:36.31,40.26 4 1
+actors/simple.go:41.44,42.51 1 0
+actors/simple.go:48.2,49.12 2 1
+actors/simple.go:49.12,51.39 2 1
+actors/simple.go:51.39,53.11 1 1
+actors/simple.go:54.31,60.54 4 1
+actors/simple.go:61.44,62.51 1 0
+actors/simple.go:67.2,68.17 2 1

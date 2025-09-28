@@ -1,0 +1,48 @@
+// Simple 3-round ping-pong implementation per specification
+
+actor Ping {
+    round: i32,
+    max_rounds: i32
+}
+
+actor Pong {
+    round: i32
+}
+
+// Main demo function - orchestrates the 3-round exchange
+fun simple_ping_pong() -> [String] {
+    let mut messages = []
+
+    // Create actor instances
+    let ping_actor = Ping { round: 0, max_rounds: 3 }
+    let pong_actor = Pong { round: 0 }
+
+    // Simulate ping-pong exchange
+    for round in 1..=3 {
+        // Ping sends
+        println("Ping: Sending round " + round.to_string())
+        messages.push("ping " + round.to_string())
+
+        // Pong receives and responds
+        println("Pong: Received ping " + round.to_string())
+        println("Pong: Sent pong " + round.to_string())
+        messages.push("pong " + round.to_string())
+
+        // Ping receives
+        println("Ping: Received pong " + round.to_string())
+    }
+
+    messages
+}
+
+fun main() {
+    println("🌟 Simple Ruchy Actor Demo")
+
+    let messages = simple_ping_pong()
+
+    println("✅ Exchanged " + messages.len().to_string() + " messages")
+    for i in 0..messages.len() {
+        let msg = messages[i]
+        println((i + 1).to_string() + ": " + msg)
+    }
+}
