@@ -1,8 +1,5 @@
 # Actor-Based Systems: From Simple to Supervised
 
-![Tests](https://github.com/noahehall/agentic-ai/workflows/Test%20All%20Implementations/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/noahehall/agentic-ai)](https://goreportcard.com/report/github.com/noahehall/agentic-ai)
-
 Five implementations demonstrating actor-based concurrent programming, from basic ping-pong to supervised calculation with crash recovery.
 
 ## Quick Start
