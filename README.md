@@ -1,3 +1,5 @@
+[![Test All Implementations](https://github.com/paiml/agentic-ai/actions/workflows/test.yml/badge.svg)](https://github.com/paiml/agentic-ai/actions/workflows/test.yml)
+
 # Actor-Based Systems: From Simple to Supervised
 
 Five implementations demonstrating actor-based concurrent programming, from basic ping-pong to supervised calculation with crash recovery.
