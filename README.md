@@ -1,3 +1,4 @@
+[![Banner](./.github/header.svg)](https://ds500.paiml.com/ "Pragmatic AI Labs")
 [![Test All Implementations](https://github.com/paiml/agentic-ai/actions/workflows/test.yml/badge.svg)](https://github.com/paiml/agentic-ai/actions/workflows/test.yml)
 
 # Actor-Based Systems: From Simple to Supervised
