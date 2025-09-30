@@ -100,7 +100,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: vx.x.x
+          deno-version: v1.x
 
       - name: Test Deno Actors
         working-directory: ./deno-actors
@@ -149,7 +149,7 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: vx.x.x
+          deno-version: v1.x
 
       - name: Run all tests
         run: |
