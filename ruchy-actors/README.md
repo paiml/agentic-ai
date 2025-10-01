@@ -4,7 +4,7 @@ Actor-based concurrent programming demonstrations in Ruchy, showcasing the actor
 
 ## Status
 
-✅ **WORKING** - Ruchy v3.62.12 with array mutation fixes
+✅ **WORKING** - Ruchy v3.63.0 with production-ready actor system
 
 ## Demos
 
@@ -98,7 +98,7 @@ make clean
 
 ## Requirements
 
-- Ruchy v3.62.12 or later (array mutation fixes required)
+- Ruchy v3.63.0 or later (production-ready actor system)
 
 ## Architecture
 
