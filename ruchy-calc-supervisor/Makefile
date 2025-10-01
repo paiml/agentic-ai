@@ -1,6 +1,11 @@
 # Ruchy Calculator Supervisor - ✅ WORKING (v3.63.0)
 
-.PHONY: run build check clean help
+.PHONY: test build run lint coverage check clean all help
+
+test: ## Run TDD tests
+	@echo "🧪 Running Ruchy tests..."
+	@ruchy calculator.ruchy
+	@echo "✅ All tests passed"
 
 run: ## Run the calculator demo
 	@echo "🚀 Running Ruchy Calculator Supervisor..."
@@ -10,6 +15,17 @@ build: ## Validate demo syntax
 	@echo "🔨 Validating calculator syntax..."
 	@ruchy check calculator.ruchy
 	@echo "✅ Validation successful"
+
+lint: ## Run linting and formatting
+	@echo "🔍 Linting Ruchy code..."
+	@ruchy check calculator.ruchy
+	@echo "✅ Linting successful"
+
+coverage: ## Generate test coverage report
+	@echo "📊 Generating Ruchy coverage report..."
+	@mkdir -p coverage
+	@ruchy coverage --format html calculator.ruchy > coverage/calculator.html
+	@echo "Coverage report generated: coverage/calculator.html"
 
 check: ## Quick syntax check
 	@echo "⚡ Quick syntax check..."

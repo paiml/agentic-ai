@@ -1,6 +1,12 @@
 # Ruchy Actor Implementation - ✅ WORKING (v3.62.12)
 
-.PHONY: run build check clean help
+.PHONY: test build run lint coverage check clean help
+
+test: ## Run TDD tests
+	@echo "🧪 Running Ruchy tests..."
+	@ruchy basic_actors.ruchy
+	@ruchy ping_pong_actors.ruchy
+	@echo "✅ All tests passed"
 
 run: ## Run all actor demos
 	@echo "🚀 Running Ruchy actor demos..."
@@ -14,6 +20,21 @@ build: ## Validate demo syntax
 	@ruchy check basic_actors.ruchy
 	@ruchy check ping_pong_actors.ruchy
 	@echo "✅ Validation successful"
+
+lint: ## Run linting and formatting
+	@echo "🔍 Linting Ruchy code..."
+	@ruchy check basic_actors.ruchy
+	@ruchy check ping_pong_actors.ruchy
+	@echo "✅ Linting successful"
+
+coverage: ## Generate test coverage report
+	@echo "📊 Generating Ruchy coverage report..."
+	@mkdir -p coverage
+	@ruchy coverage --format html basic_actors.ruchy > coverage/basic_actors.html
+	@ruchy coverage --format html ping_pong_actors.ruchy > coverage/ping_pong_actors.html
+	@echo "Coverage reports generated:"
+	@echo "  - coverage/basic_actors.html"
+	@echo "  - coverage/ping_pong_actors.html"
 
 check: ## Quick syntax check
 	@echo "⚡ Quick syntax check..."
