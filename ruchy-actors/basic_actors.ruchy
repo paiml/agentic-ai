@@ -1,0 +1,44 @@
+// Basic Actor Demo - Demonstrates actor definition and instantiation
+// Ruchy v3.62.12
+
+// Simple counter actor
+actor Counter {
+    count: i32,
+    name: String
+}
+
+// Message processor actor
+actor MessageProcessor {
+    processed: i32,
+    active: bool
+}
+
+fun main() {
+    println("🎭 Basic Ruchy Actor Demo")
+    println("=========================")
+
+    // Demonstrate actor definition and instantiation
+    println("\n📊 Demo 1: Actor Definitions")
+    println("✓ Counter actor defined with count and name fields")
+    println("✓ MessageProcessor actor defined with processed and active fields")
+
+    // Create actor instances
+    println("\n📊 Demo 2: Actor Instantiation")
+    let counter = Counter { count: 0, name: "MainCounter" }
+    println(f"✓ Created counter: {counter.name} with count {counter.count}")
+
+    let processor = MessageProcessor { processed: 0, active: true }
+    println(f"✓ Created processor: processed={processor.processed}, active={processor.active}")
+
+    // Demonstrate multiple actor instances
+    println("\n📊 Demo 3: Multiple Instances")
+    let counter1 = Counter { count: 10, name: "Counter1" }
+    let counter2 = Counter { count: 20, name: "Counter2" }
+    let counter3 = Counter { count: 30, name: "Counter3" }
+
+    println(f"✓ {counter1.name}: {counter1.count}")
+    println(f"✓ {counter2.name}: {counter2.count}")
+    println(f"✓ {counter3.name}: {counter3.count}")
+
+    println("\n✅ Basic actor demo completed!")
+}
