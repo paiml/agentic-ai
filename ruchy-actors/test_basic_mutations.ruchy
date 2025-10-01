@@ -1,0 +1,23 @@
+// Basic Array Mutation Tests
+println("Test 1: Basic push")
+let mut arr1 = []
+arr1.push(1)
+arr1.push(2)
+arr1.push(3)
+println(f"Length: {arr1.len()}")
+
+println("Test 2: Push in loop")
+let mut arr2 = []
+for i in range(0, 5) {
+    arr2.push(i)
+}
+println(f"Length: {arr2.len()}")
+
+println("Test 3: Pop operation")
+let mut arr3 = []
+arr3.push(10)
+arr3.push(20)
+arr3.pop()
+println(f"Length: {arr3.len()}")
+
+println("All tests complete")

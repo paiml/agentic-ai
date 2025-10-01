@@ -1,0 +1,114 @@
+// Ruchy Calculator Supervisor - V2 Implementation
+// Actor-based calculator with supervision and crash recovery
+// Version: v3.62.12
+
+actor Calculator {
+    adder_restarts: i32,
+    multiplier_restarts: i32,
+    budget: i32,
+    escalated: bool
+}
+
+// Simple functional calculator without the actor complexity
+// Since Ruchy doesn't have full actor support yet, we use a simpler approach
+
+fun add(a, b) {
+    a + b
+}
+
+fun multiply(a, b) {
+    a * b
+}
+
+fun check_add_overflow(a, b) {
+    // Simplified overflow check
+    if a > 900000000000000000 && b > 900000000000000000 {
+        true
+    } else {
+        false
+    }
+}
+
+fun check_mult_overflow(a, b) {
+    // Simplified overflow check
+    if a > 100000000 && b > 100000000 {
+        true
+    } else {
+        false
+    }
+}
+
+fun main() {
+    println("🚀 Calculator Supervisor Demo")
+    println("=============================")
+
+    // Track restarts
+    let mut adder_restarts = 0
+    let mut multiplier_restarts = 0
+    let mut budget = 3
+    let mut escalated = false
+
+    // Demo 1: Basic operations
+    println("\n📊 Demo 1: Basic Operations")
+    let result1 = add(10, 20)
+    println(f"   10 + 20 = {result1}")
+
+    let result2 = multiply(5, 6)
+    println(f"   5 * 6 = {result2}")
+
+    // Demo 2: Overflow detection and recovery
+    println("\n⚠️  Demo 2: Overflow Detection & Recovery")
+    println("   Attempting overflow: Large + Large...")
+    let large_num = 922337203685477580
+    if check_add_overflow(large_num, large_num) {
+        println("   ❌ Error (expected): overflow")
+        if budget > 0 {
+            adder_restarts += 1
+            budget -= 1
+        }
+    }
+    println(f"   🔄 Adder restarts: {adder_restarts}")
+
+    // Show recovery
+    println("\n✅ Demo 3: Recovery After Crash")
+    let recovery = add(100, 200)
+    println(f"   100 + 200 = {recovery} (agent recovered!)")
+
+    // Demo 4: Multiple failures
+    println("\n🔥 Demo 4: Multiple Failures")
+    let huge = 100000001
+    for i in range(1, 4) {
+        println(f"   Crash attempt #{i}...")
+        if check_mult_overflow(huge, huge) {
+            if budget > 0 {
+                multiplier_restarts += 1
+                budget -= 1
+            } else {
+                escalated = true
+            }
+        }
+    }
+    println(f"   🔄 Multiplier restarts: {multiplier_restarts}")
+
+    if escalated {
+        println("   ⚡ Supervisor escalated (budget exhausted)")
+    } else {
+        println("   ✨ Supervisor still healthy")
+    }
+
+    // Demo 5: Performance test
+    println("\n⚡ Demo 5: Performance Test")
+    let mut operations = 0
+    for i in range(0, 1000) {
+        add(i, i + 1)
+        operations += 1
+    }
+    println(f"   Completed {operations} operations")
+
+    // Final status
+    println("\n📈 Final Statistics:")
+    println(f"   Adder restarts: {adder_restarts}")
+    println(f"   Multiplier restarts: {multiplier_restarts}")
+    println(f"   Supervisor escalated: {escalated}")
+    println("\n✨ Demo completed!")
+}

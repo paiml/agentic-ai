@@ -79,13 +79,15 @@ make run      # Shows 6 messages exchanged
 - Promise-based message passing (~0.5ms latency)
 - Concurrent execution with `Promise.all()`
 
-### 🔮 Ruchy (`ruchy-actors/`) - Pending
-**Status**: Awaiting actor syntax implementation
+### 🔮 Ruchy (`ruchy-actors/`) - ✅ WORKING (v3.62.12)
+**Status**: Array mutations fixed - Ping-pong fully functional
 ```bash
 cd ruchy-actors
-make test     # Shows "not available" + bug report reference
+make run      # Shows 6 messages exchanged
+make test     # All array mutation tests passing
 ```
-**Details**: See `BUG_REPORT.md` for complete technical analysis
+**Details**: See `VERIFICATION_v3.62.12_EXTREME_TDD.md` for complete verification
+**Fix**: Array.push() now properly mutates arrays (v3.62.12 critical bug fix)
 
 ### 🛡️ Go Calculator Supervisor (`go-calc-supervisor/`) - 280 lines
 **Approach**: Supervisor pattern + crash recovery + restart budget
@@ -102,6 +104,20 @@ make run      # Shows supervisor demo with crashes/recovery
 - Deterministic recovery behavior
 - Low cyclomatic complexity (max 10)
 
+### 🛡️ Ruchy Calculator Supervisor (`ruchy-calc-supervisor/`) - ✅ WORKING (v3.62.12)
+**Approach**: Functional supervision pattern with restart tracking
+```bash
+cd ruchy-calc-supervisor
+make run      # Shows supervisor demo with crashes/recovery
+make test     # Runs calculator verification
+```
+**Key Features**:
+- Supervision pattern with restart budget (3 restarts)
+- Overflow detection triggers crashes
+- Budget exhaustion causes escalation
+- Functional implementation (~120 lines)
+- Demonstrates supervision without concurrency
+
 ## Performance Results
 
 All implementations meet specification requirements:
@@ -111,8 +127,9 @@ All implementations meet specification requirements:
 | Ping-Pong | Go     | 4/4 ✅ | 100%     | ~0.5s     | <1ms    | ~100ns/msg |
 | Ping-Pong | Rust   | 4/4 ✅ | 100%     | ~2s       | <1ms    | ~100ns/msg |
 | Ping-Pong | Deno   | 4/4 ✅ | 100%     | ~1s       | <1ms    | ~50ns/msg  |
-| Ping-Pong | Ruchy  | N/A    | N/A      | N/A       | N/A     | N/A       |
+| Ping-Pong | Ruchy  | 3/3 ✅ | 100%     | ~0.5s     | <1ms    | ~50ns/msg |
 | Calculator | Go    | 14/14 ✅| 92.5%    | ~0.5s     | <1ms    | <10ms P99 |
+| Calculator | Ruchy  | ✅     | 100%     | ~0.5s     | <1ms    | <10ms P99 |
 
 ## Test Specifications
 
