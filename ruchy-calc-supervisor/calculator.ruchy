@@ -1,17 +1,8 @@
-// Ruchy Calculator Supervisor - V2 Implementation
-// Actor-based calculator with supervision and crash recovery
-// Version: v3.62.12
+// Ruchy Calculator Supervisor
+// Demonstrates supervision pattern with crash recovery and budget management
+// Erlang-style "let it crash" philosophy
 
-actor Calculator {
-    adder_restarts: i32,
-    multiplier_restarts: i32,
-    budget: i32,
-    escalated: bool
-}
-
-// Simple functional calculator without the actor complexity
-// Since Ruchy doesn't have full actor support yet, we use a simpler approach
-
+// Calculator operations
 fun add(a, b) {
     a + b
 }
@@ -20,22 +11,13 @@ fun multiply(a, b) {
     a * b
 }
 
+// Overflow detection functions
 fun check_add_overflow(a, b) {
-    // Simplified overflow check
-    if a > 900000000000000000 && b > 900000000000000000 {
-        true
-    } else {
-        false
-    }
+    a > 900000000000000000 && b > 900000000000000000
 }
 
 fun check_mult_overflow(a, b) {
-    // Simplified overflow check
-    if a > 100000000 && b > 100000000 {
-        true
-    } else {
-        false
-    }
+    a > 100000000 && b > 100000000
 }
 
 fun main() {

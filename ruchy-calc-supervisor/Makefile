@@ -1,18 +1,19 @@
 # Ruchy Calculator Supervisor - ✅ WORKING (v3.62.12)
 
-.PHONY: run test clean help all
+.PHONY: run build check clean help
 
 run: ## Run the calculator demo
 	@echo "🚀 Running Ruchy Calculator Supervisor..."
-	@ruchy calculator_v2.ruchy
+	@ruchy calculator.ruchy
 
-test: ## Run calculator demo (test mode)
-	@echo "🧪 Running calculator demo..."
-	@ruchy calculator_v2.ruchy
+build: ## Validate demo syntax
+	@echo "🔨 Validating calculator syntax..."
+	@ruchy check calculator.ruchy
+	@echo "✅ Validation successful"
 
-verify: ## Verify calculator implementation
-	@echo "🔍 Verifying calculator..."
-	@ruchy calculator_v2.ruchy
+check: ## Quick syntax check
+	@echo "⚡ Quick syntax check..."
+	@ruchy check calculator.ruchy
 
 clean: ## Clean temporary files
 	@echo "🧹 Cleaning temporary files..."
